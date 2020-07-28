@@ -269,6 +269,16 @@ pub fn get_all_bus_ids() -> ClResult<Vec<u32>> {
     Ok(bus_ids)
 }
 
+pub fn get_all_nvidia_bus_ids() -> ClResult<Vec<u32>> {
+    let mut bus_ids = Vec::new();
+    for dev in get_all_nvidia_devices()? {
+        bus_ids.push(get_bus_id(dev)?);
+    }
+    bus_ids.sort_unstable();
+    bus_ids.dedup();
+    Ok(bus_ids)
+}
+
 pub fn futhark_context(selector: GPUSelector) -> ClResult<Arc<Mutex<FutharkContext>>> {
     let mut map = FUTHARK_CONTEXT_MAP.lock().unwrap();
     let bus_id = selector.get_bus_id()?;
