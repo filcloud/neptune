@@ -30,6 +30,8 @@ pub enum BatcherType {
     CPU,
     #[cfg(feature = "opencl")]
     OpenCL,
+    #[cfg(feature = "opencl")]
+    CustomOpenCL(GPUSelector),
 }
 
 impl Debug for BatcherType {
@@ -47,6 +49,8 @@ impl Debug for BatcherType {
             BatcherType::GPU => f.write_fmt(format_args!("GPU")),
             #[cfg(feature = "opencl")]
             BatcherType::OpenCL => f.write_fmt(format_args!("OpenCL")),
+            #[cfg(feature = "opencl")]
+            BatcherType::CustomOpenCL(x) => f.write_fmt(format_args!("CustomOpenCL({:?})", x)),
         }
     }
 }
@@ -117,6 +121,12 @@ where
             #[cfg(feature = "opencl")]
             BatcherType::OpenCL => Ok(Batcher::OpenCL(CLBatchHasher::<A>::new_with_strength(
                 get_device(&GPUSelector::Index(0))?,
+                strength,
+                max_batch_size,
+            )?)),
+            #[cfg(feature = "opencl")]
+            BatcherType::CustomOpenCL(selector) => Ok(Batcher::OpenCL(CLBatchHasher::<A>::new_with_strength(
+                get_device(selector)?,
                 strength,
                 max_batch_size,
             )?)),
